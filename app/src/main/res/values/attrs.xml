@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ScratchView">
+        <attr name="scratch_backgroundColor" format="color" />
+        <attr name="scratch_textColor" format="color" />
+        <attr name="scratch_textSize" format="dimension" />
+        <attr name="scratch_maskColor" format="color" />
+        <attr name="scratch_pathWidth" format="dimension" />
+        <attr name="scratch_rowAndColumn" format="integer" />
+        <attr name="scratch_dividerWidth" format="dimension" />
+        <attr name="scratch_dividerColor" format="color" />
+        <attr name="scratch_radius" format="dimension" />
+        <attr name="scratch_borderWidth" format="dimension" />
+        <attr name="scratch_borderColor" format="color" />
+    </declare-styleable>
+</resources>
