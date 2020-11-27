@@ -22,8 +22,8 @@ class ScratchNineView : View {
     private val mPath = Path()
     private lateinit var mBitmap: Bitmap
     private lateinit var mCanvas: Canvas
-    private lateinit var data: ItemInfo
-    private lateinit var mBitmapCache: HashMap<Int, Bitmap?>
+    private var data: ItemInfo? = null
+    private var mBitmapCache: HashMap<Int, Bitmap?>? = null
     private var maxRange = 80F
 
     private lateinit var onComplete: () -> Unit
@@ -105,14 +105,14 @@ class ScratchNineView : View {
 
     private fun initBitmapCache() {
         mBitmapCache = HashMap()
-        data.images.filter { it != -1 }.map {
+        data?.images?.filter { it != -1 }?.map {
             cacheBitmap(it)
         }
     }
 
     private fun cacheBitmap(drawableId: Int) {
         val newBitmap = BitmapFactory.decodeResource(context.resources, drawableId)
-        mBitmapCache[drawableId] = newBitmap
+        mBitmapCache?.set(drawableId, newBitmap)
         invalidate()
     }
 
@@ -306,22 +306,27 @@ class ScratchNineView : View {
     private fun drawContent(canvas: Canvas?) {
         val size = mItemSize
         var row = 0
-        val realDataList = data.images
-        for (i in realDataList.indices) {
-            val column = i % mRowAndColumn
-            if (column == 0 && i > 0) {
-                row++
+        val realDataList = data?.images
+        if (realDataList != null) {
+            for (i in realDataList.indices) {
+                val column = i % mRowAndColumn
+                if (column == 0 && i > 0) {
+                    row++
+                }
+                val left = column * size
+                val top = row * size
+                drawItem(left, top, canvas, realDataList[i])
             }
-            val left = column * size
-            val top = row * size
-            drawItem(left, top, canvas, realDataList[i])
         }
     }
 
     private fun drawDivider(canvas: Canvas?) {
+        if (data == null) {
+            return
+        }
         val size = mItemSize
         var row = 0
-        val dataSize = data.images.size + 1
+        val dataSize = data?.images?.size ?: 0 + 1
         for (i in 0 until dataSize) {
             val column = i % mRowAndColumn
             if (column == 0 && i > 0) {
@@ -342,11 +347,11 @@ class ScratchNineView : View {
     }
 
     private fun drawItem(left: Float, top: Float, canvas: Canvas?, imgId: Int) {
-        val newBitmap: Bitmap? = mBitmapCache[imgId]
+        val newBitmap: Bitmap? = mBitmapCache?.get(imgId)
         val nLeft = left + mItemSize / 2 - (newBitmap?.width?.div(2) ?: 0)
         val nTop = top + mItemSize / 2 - (newBitmap?.height?.div(2) ?: 0)
-        if (mBitmapCache[imgId] != null) {
-            val bitmap: Bitmap = mBitmapCache[imgId]!!
+        if (newBitmap != null) {
+            val bitmap: Bitmap = newBitmap
             canvas?.drawBitmap(bitmap, nLeft, nTop, null)
         }
     }
@@ -406,7 +411,7 @@ class ScratchNineView : View {
     }
 
     fun clear() {
-        mBitmapCache.values.map {
+        mBitmapCache?.values?.map {
             it?.recycle()
         }
     }

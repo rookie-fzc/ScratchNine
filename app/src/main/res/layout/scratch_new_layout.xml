@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/teal_200"
+    android:clipChildren="false">
+
+    <Space
+        android:id="@+id/scratch_root"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="2:3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Space
+        android:id="@+id/scratch_content"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@+id/scratch_root"
+        app:layout_constraintDimensionRatio="342:441"
+        app:layout_constraintEnd_toEndOf="@+id/scratch_root"
+        app:layout_constraintStart_toStartOf="@+id/scratch_root"
+        app:layout_constraintTop_toTopOf="@+id/scratch_root"
+        app:layout_constraintVertical_bias="0" />
+
+    <FrameLayout
+        android:id="@+id/scratch_scratch_container"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#00ff0000"
+        android:clipChildren="false"
+        app:layout_constraintBottom_toBottomOf="@+id/scratch_content"
+        app:layout_constraintDimensionRatio="339:332"
+        app:layout_constraintHorizontal_weight="330"
+        app:layout_constraintLeft_toLeftOf="@+id/scratch_content"
+        app:layout_constraintRight_toRightOf="@+id/scratch_content"
+        app:layout_constraintTop_toTopOf="@+id/scratch_content"
+        app:layout_constraintVertical_bias="1">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleX="0.95"
+            android:scaleY="0.95"
+            android:translationY="22dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="1dp" />
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleX="0.98"
+            android:scaleY="0.98"
+            android:translationY="10dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp" />
+
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/scratch_scratch"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            app:cardPreventCornerOverlap="false">
+
+            <com.fzc.nine.scratch.ScratchNineView
+                android:id="@+id/scratch_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:scratch_borderColor="#FF0000"
+                app:scratch_borderWidth="2dp"
+                app:scratch_dividerWidth="1.5dp"
+                app:scratch_radius="10dp"
+                app:scratch_textSize="30sp" />
+        </androidx.cardview.widget.CardView>
+    </FrameLayout>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/scratch_discard_anim"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clickable="true"
+        android:visibility="invisible"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="4.5dp"
+        app:layout_constraintBottom_toBottomOf="@+id/scratch_scratch_container"
+        app:layout_constraintEnd_toEndOf="@+id/scratch_scratch_container"
+        app:layout_constraintStart_toStartOf="@+id/scratch_scratch_container"
+        app:layout_constraintTop_toTopOf="@+id/scratch_scratch_container">
+
+        <View
+            android:id="@+id/scratch_discard_anim_img"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </androidx.cardview.widget.CardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -2,11 +2,14 @@ package com.fzc.nine.scratch
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.drawable.BitmapDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
+import androidx.cardview.widget.CardView
 import com.fzc.nine.scratch.data.ItemInfo
 
 class MainActivity : AppCompatActivity() {
@@ -15,9 +18,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.scratch_new_layout)
         initScratch()
-        testCropPixes()
+//        testCropPixes()
     }
 
     // 截取指定位置的图像
@@ -66,13 +69,39 @@ class MainActivity : AppCompatActivity() {
         scratchNineView = findViewById(R.id.scratch_view)
         scratchNineView.visibility = View.VISIBLE
         scratchNineView.setOnCompleteListener {
-            scratchNineView.reset()
+
+            initAnimateLayout()
+
         }
         scratchNineView.setMaskLayerDrawable(R.drawable.scratch_mask_img)
         scratchNineView.setBgColor(Color.WHITE)
         scratchNineView.setData(initScratchData())
         scratchNineView.setMaxRange(90F)
         scratchNineView.setDividerColor(Color.YELLOW)
+    }
+
+    private fun initAnimateLayout() {
+        val scratchCard = findViewById<CardView>(R.id.scratch_scratch)
+        val scratchBitmap =
+            Bitmap.createBitmap(scratchCard.width, scratchCard.height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(scratchBitmap)
+        findViewById<View>(R.id.scratch_discard_anim_img).background =
+            BitmapDrawable(resources, scratchBitmap)
+        canvas.drawColor(0)
+        scratchCard.draw(canvas)
+        val disCard = findViewById<CardView>(R.id.scratch_discard_anim)
+        disCard.visibility = View.VISIBLE
+        disCard.animate().cancel()
+        disCard.animate().translationX(1300f).translationY(100F).rotation(-25F).setDuration(700)
+            .withEndAction {
+
+                disCard.translationX = 0f
+                disCard.translationY = 0f
+                disCard.rotation = 0f
+                disCard.visibility = View.GONE
+
+                scratchNineView.reset()
+            }
     }
 
     private fun initScratchData(): ItemInfo {
