@@ -13,4 +13,14 @@
         <attr name="scratch_borderWidth" format="dimension" />
         <attr name="scratch_borderColor" format="color" />
     </declare-styleable>
+
+    <declare-styleable name="NineSpinView">
+        <attr name="spin_backgroundColor" format="color" />
+        <attr name="spin_center_img" format="reference|color" />
+        <attr name="spin_item_img" format="reference|color" />
+        <attr name="spin_textColor" format="color" />
+        <attr name="spin_textSize" format="dimension" />
+        <attr name="spin_rowAndColumn" format="integer" />
+        <attr name="spin_radius" format="dimension" />
+    </declare-styleable>
 </resources>

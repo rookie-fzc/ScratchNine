@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_nav_grah"
+    app:startDestination="@id/mainFragment">
+
+    <fragment
+        android:id="@+id/mainFragment"
+        android:name="com.fzc.nine.MainFragment"
+        android:label="fragment_main"
+        tools:layout="@layout/fragment_main" >
+        <action
+            android:id="@+id/action_mainFragment_to_scratchNineFragment"
+            app:destination="@id/scratchNineFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_spinNineFragment"
+            app:destination="@id/spinNineFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/scratchNineFragment"
+        android:name="com.fzc.nine.scratch.ScratchNineFragment"
+        android:label="fragment_scratch"
+        tools:layout="@layout/fragment_scratch" />
+    <fragment
+        android:id="@+id/spinNineFragment"
+        android:name="com.fzc.nine.spin.SpinNineFragment"
+        android:label="fragment_spin_nine"
+        tools:layout="@layout/fragment_spin_nine" />
+
+</navigation>

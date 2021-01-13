@@ -9,6 +9,7 @@ import android.view.View
 import com.fzc.nine.scratch.data.ItemInfo
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.abs
+import kotlin.random.Random
 
 class ScratchNineView : View {
 
@@ -19,6 +20,7 @@ class ScratchNineView : View {
     private val mBgPaint: Paint = Paint()
     private val mDividerPaint: Paint = Paint()
     private val mBorderPaint: Paint = Paint()
+    private val mHitPaint: Paint = Paint()
     private val mPath = Path()
     private lateinit var mBitmap: Bitmap
     private lateinit var mCanvas: Canvas
@@ -27,6 +29,7 @@ class ScratchNineView : View {
     private var maxRange = 80F
 
     private lateinit var onComplete: () -> Unit
+    private lateinit var onStartListener: () -> Unit
     private var mCompleted: AtomicBoolean = AtomicBoolean(false)
 
     private var lastX = 0F
@@ -148,6 +151,10 @@ class ScratchNineView : View {
         mDividerPaint.style = Paint.Style.STROKE
         mDividerPaint.strokeWidth = mDividerWidth.toFloat()
 
+        mHitPaint.isAntiAlias = true
+        mHitPaint.color = mDividerColor
+        mHitPaint.style = Paint.Style.FILL
+
         mBorderPaint.isAntiAlias = true
         mBorderPaint.color = mBorderColor
         mBorderPaint.style = Paint.Style.STROKE
@@ -159,6 +166,13 @@ class ScratchNineView : View {
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         mItemSize = (width / mRowAndColumn).toFloat()
+        val createBitmap =
+            Bitmap.createBitmap(
+                width - paddingStart - paddingEnd,
+                height - paddingTop - paddingBottom,
+                Bitmap.Config.ARGB_8888
+            )
+        mBitmap = createBitmap
         initBitmapCache()
         initPaint()
         createMaskBitmap()
@@ -167,14 +181,11 @@ class ScratchNineView : View {
     }
 
     private fun createMaskBitmap(): Bitmap {
-        val createBitmap =
-            Bitmap.createBitmap(
-                width - paddingStart - paddingEnd,
-                height - paddingTop - paddingBottom,
-                Bitmap.Config.ARGB_8888
-            )
-        mBitmap = createBitmap
-        mCanvas = Canvas(createBitmap)
+        mCanvas = Canvas(mBitmap)
+        val rect = Rect(0, 0, mBitmap.width, mBitmap.height)
+        val rectF = RectF(rect)
+        mCanvas.drawRoundRect(rectF, radius, radius, mMaskBitmapPaint);
+        mMaskBitmapPaint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN);
         if (maskResource <= 0) {
             drawMaskColorLayer()
         } else {
@@ -184,13 +195,14 @@ class ScratchNineView : View {
             val height = copyBitmap.height
             val matrix = Matrix()
             matrix.setScale(
-                createBitmap.width.toFloat() / width.toFloat(),
-                createBitmap.height.toFloat() / height.toFloat()
+                mBitmap.width.toFloat() / width.toFloat(),
+                mBitmap.height.toFloat() / height.toFloat()
             )
             mCanvas.drawBitmap(copyBitmap, matrix, mMaskBitmapPaint)
             copyBitmap.recycle()
         }
-        return createBitmap
+        mMaskBitmapPaint.xfermode = null
+        return mBitmap
     }
 
     private fun drawMaskColorLayer() {
@@ -212,6 +224,7 @@ class ScratchNineView : View {
                     lastX = x
                     lastY = y
                     mPath.moveTo(lastX, lastY)
+                    onStartListener.invoke()
                 }
                 MotionEvent.ACTION_MOVE -> {
                     var dx = abs(x - lastX)
@@ -256,24 +269,30 @@ class ScratchNineView : View {
         if (wipeArea > 0 && totalArea > 0) {
             val percent = wipeArea * 100 / totalArea
             if (percent > maxRange) {
+                for(i in 0..2) {
+                    val random = (0..8).random()
+                    hitIndex.add(random)
+                }
+                invalidate()
                 mCompleted.compareAndSet(false, true)
                 onComplete.invoke()
             }
         }
     }
 
+    var hitIndex:ArrayList<Int> = ArrayList()
+
     override fun onDraw(canvas: Canvas?) {
-        Log.e(TAG, "onDraw: ---------------")
         // 背景层
         drawBackground(canvas)
         // 内容层
         drawContent(canvas)
+        // 画分割线
+        drawDivider(canvas)
         // 遮罩层
         canvas?.drawBitmap(mBitmap, 0f, 0f, mMaskColorPaint)
         // 涂鸦
         mCanvas.drawPath(mPath, mPathPaint)
-        // 画分割线
-        drawDivider(canvas)
         // 画边框
         drawBorderRect(canvas)
     }
@@ -315,7 +334,7 @@ class ScratchNineView : View {
                 }
                 val left = column * size
                 val top = row * size
-                drawItem(left, top, canvas, realDataList[i])
+                drawItem(left, top, canvas, realDataList[i],i)
             }
         }
     }
@@ -346,10 +365,16 @@ class ScratchNineView : View {
         }
     }
 
-    private fun drawItem(left: Float, top: Float, canvas: Canvas?, imgId: Int) {
+    private fun drawItem(left: Float, top: Float, canvas: Canvas?, imgId: Int, index:Int) {
         val newBitmap: Bitmap? = mBitmapCache?.get(imgId)
         val nLeft = left + mItemSize / 2 - (newBitmap?.width?.div(2) ?: 0)
         val nTop = top + mItemSize / 2 - (newBitmap?.height?.div(2) ?: 0)
+        val right = left+mItemSize
+        val bottom = top+mItemSize
+        if (hitIndex.contains(index)) {
+            Log.e(TAG, "drawItem: ------------ ${bottom-top}, ${right-left}", )
+            canvas?.drawRect(left, top, right, bottom, mHitPaint)
+        }
         if (newBitmap != null) {
             val bitmap: Bitmap = newBitmap
             canvas?.drawBitmap(bitmap, nLeft, nTop, null)
@@ -369,6 +394,10 @@ class ScratchNineView : View {
 
     fun setOnCompleteListener(onComplete: () -> Unit) {
         this.onComplete = onComplete
+    }
+
+    fun setOnStartListener(startListener: () -> Unit) {
+        this.onStartListener = startListener
     }
 
     fun setBgColor(color: Int) {
