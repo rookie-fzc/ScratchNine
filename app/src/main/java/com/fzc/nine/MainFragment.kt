@@ -31,11 +31,11 @@ class MainFragment : Fragment(), View.OnClickListener {
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.btn_goto_scratch -> {
-                Navigation.findNavController(v!!)
+                Navigation.findNavController(v)
                     .navigate(R.id.action_mainFragment_to_scratchNineFragment)
             }
             R.id.btn_spin_nine -> {
-                Navigation.findNavController(v!!)
+                Navigation.findNavController(v)
                     .navigate(R.id.action_mainFragment_to_spinNineFragment)
             }
         }

@@ -31,7 +31,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:spin_hit_color="#a0fff000"
         app:spin_item_img="@drawable/spin_nine_item_bg"
-        app:spin_radius="20dp"
+        app:spin_radius="13dp"
         app:spin_textColor="@color/purple_200"
         app:spin_textSize="30sp" />
 </androidx.constraintlayout.widget.ConstraintLayout>

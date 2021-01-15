@@ -22,5 +22,6 @@
         <attr name="spin_textSize" format="dimension" />
         <attr name="spin_rowAndColumn" format="integer" />
         <attr name="spin_radius" format="dimension" />
+        <attr name="spin_hit_color" format="color" />
     </declare-styleable>
 </resources>
