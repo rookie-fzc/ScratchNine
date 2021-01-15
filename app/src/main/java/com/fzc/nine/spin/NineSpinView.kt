@@ -102,6 +102,11 @@ class NineSpinView : View {
         super.onSizeChanged(w, h, oldw, oldh)
         mItemSize = (width / mRowAndColumn).toFloat()
         mCenterIndex = mRowAndColumn * mRowAndColumn / 2
+        if (mTextSize > mItemSize) {
+            mTextSize /= 3
+        } else if (mTextSize > mItemSize / 2) {
+            mTextSize = mTextSize * 2 / 3
+        }
         initBitmapCache()
         initPaint()
     }
@@ -113,6 +118,7 @@ class NineSpinView : View {
         val width = itemImg.width
         val height = itemImg.height
         val matrix = Matrix()
+        mRadius *= (mItemSize * 0.98f / width.toFloat())
         matrix.setScale(
             mItemSize * 0.98f / width.toFloat(),
             mItemSize * 0.98f / height.toFloat()
