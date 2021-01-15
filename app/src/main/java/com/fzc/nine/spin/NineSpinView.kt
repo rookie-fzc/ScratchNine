@@ -5,8 +5,10 @@ import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
+import android.view.MotionEvent
 import android.view.View
 import com.fzc.nine.scratch.R
+import java.lang.IllegalArgumentException
 
 
 data class ItemInfo(val reward: Int)
@@ -15,6 +17,7 @@ class NineSpinView : View {
 
     private val mTextPaint: Paint = Paint()
     private val mBgPaint: Paint = Paint()
+    private val mHitPaint: Paint = Paint()
 
     private var mBackgroundColor = 0
     private var mTextSize = 0F
@@ -22,19 +25,36 @@ class NineSpinView : View {
     private var mRowAndColumn = 0
     private var mRadius = 0F
     private var mCenterIndex = 0
+    private var mHitColor = 0
 
     private var mItemImg: Drawable? = null
     private var mCenterImg: Drawable? = null
 
     private var mItemSize = 0f
     private var mBitmapCache: HashMap<Int, Bitmap?>? = null
+    private var centerRectF: RectF? = null
+
+    private var mCompleteListener: (() -> Unit)? = null
+    private var mCenterListener: (() -> Unit)? = null
+
+    private val orderArray = intArrayOf(0, 1, 2, 5, 8, 7, 6, 3)
+
+    private var hitIndex = -1
+    private var repeatCount = 0
+    private var targetIndex = -1
+    private var isSpinning = false
+    private var isFinish = false
+
+    private var dataList:ArrayList<ItemInfo>? = null
 
     companion object {
         const val TAG = "NineSpinView"
+        const val MAX_REPEAT_COUNT = 3
         const val DEFAULT_TEXT_SIZE = 31F
         const val DEFAULT_RADIUS = 0F
         const val DEFAULT_ROW_COLUMN = 3
         const val DEFAULT_TEXT_COLOR = Color.BLACK
+        const val DEFAULT_HIT_COLOR = Color.YELLOW
     }
 
     constructor(context: Context?) : super(context)
@@ -54,12 +74,16 @@ class NineSpinView : View {
                     R.styleable.NineSpinView_spin_textColor,
                     DEFAULT_TEXT_COLOR
                 )
+            mHitColor =
+                typeArray.getColor(
+                    R.styleable.NineSpinView_spin_hit_color,
+                    DEFAULT_HIT_COLOR
+                )
             mRowAndColumn =
                 typeArray.getInt(
                     R.styleable.NineSpinView_spin_rowAndColumn,
                     DEFAULT_ROW_COLUMN
                 )
-
             mRadius = typeArray.getDimension(
                 R.styleable.NineSpinView_spin_radius,
                 DEFAULT_RADIUS
@@ -117,6 +141,10 @@ class NineSpinView : View {
         mBgPaint.isAntiAlias = true
         mBgPaint.color = mBackgroundColor
         mBgPaint.style = Paint.Style.FILL
+
+        mHitPaint.isAntiAlias = true
+        mHitPaint.color = mHitColor
+        mHitPaint.style = Paint.Style.FILL
     }
 
     override fun onDraw(canvas: Canvas?) {
@@ -151,22 +179,116 @@ class NineSpinView : View {
             val top = row * size + 3
             drawItem(left, top, canvas, i, i)
         }
+    }
 
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        if (event?.action == MotionEvent.ACTION_UP) {
+            val touchX = event.x
+            val touchY = event.y
+            centerRectF?.let { centerRectF ->
+                if (touchX > centerRectF.left
+                    && touchX < centerRectF.right
+                    && touchY > centerRectF.top &&
+                    touchY < centerRectF.bottom
+                ) {
+                    if (isSpinning) {
+                        return@let
+                    }
+                    isSpinning = true
+                    reset()
+                    this.mCenterListener?.invoke()
+                }
+            }
+        }
+        return true
     }
 
     private fun drawItem(left: Float, top: Float, canvas: Canvas?, imgId: Int, index: Int) {
         val newBitmap: Bitmap? = mBitmapCache?.get(imgId)
         if (index == mCenterIndex) {
             val bitmap: Bitmap = newBitmap!!
+            if (centerRectF == null) {
+                centerRectF = RectF(left, top, left + mItemSize, top + mItemSize)
+            }
             val imgLeft = left + mItemSize / 2 - (newBitmap.width.div(2))
             val imgTop = top + mItemSize / 2 - (newBitmap.height.div(2))
             canvas?.drawBitmap(bitmap, imgLeft, imgTop, null)
         } else {
             val bitmap: Bitmap = newBitmap!!
             canvas?.drawBitmap(bitmap, left, top, null)
+            if (index == hitIndex) {
+                canvas?.drawRoundRect(
+                    left,
+                    top,
+                    left + mItemSize,
+                    top + mItemSize,
+                    mRadius,
+                    mRadius,
+                    mHitPaint
+                )
+            }
             val nLeft = left + mItemSize / 2
             val nTop = top + mItemSize * 1.2f / 2
-            canvas?.drawText("x $index", nLeft, nTop, mTextPaint)
+            if (dataList != null && dataList!!.size <= mRowAndColumn*mRowAndColumn) {
+                val reward = dataList!![index].reward
+                canvas?.drawText("x $reward", nLeft, nTop, mTextPaint)
+            } else {
+                canvas?.drawText("x $index", nLeft, nTop, mTextPaint)
+            }
         }
+    }
+
+    fun startSpinWithTargetReward(reward: Int) {
+        dataList?.forEachIndexed{index, itemInfo ->
+            if (reward == itemInfo.reward) {
+                this.targetIndex = index
+                return@forEachIndexed
+            }
+        }
+        spinNineAnim()
+    }
+
+    private fun spinNineAnim() {
+        orderArray.forEachIndexed { index, i ->
+            handler.postDelayed({
+                if (isFinish) {
+                    return@postDelayed
+                }
+                hitIndex = i
+                if (targetIndex == i && repeatCount == MAX_REPEAT_COUNT) {
+                    isSpinning = false
+                    isFinish = true
+                    this.mCompleteListener?.invoke()
+                    return@postDelayed
+                }
+                invalidate()
+                if (i == orderArray.last() && repeatCount++ < MAX_REPEAT_COUNT) {
+                    spinNineAnim()
+                }
+            }, ((index + 1) * 100).toLong())
+        }
+    }
+
+    fun setData(data:ArrayList<ItemInfo>) {
+        if (data.size <= 0 && data.size > mRowAndColumn * mRowAndColumn) throw IllegalArgumentException(
+            "data not use"
+        )
+        this.dataList = data
+    }
+
+    fun setOnCenterClickListener(clickListener: () -> Unit) {
+        this.mCenterListener = clickListener
+    }
+
+    fun setCompleteListener(complete: () -> Unit) {
+        this.mCompleteListener = complete
+    }
+
+    private fun reset() {
+        hitIndex = -1
+        targetIndex = -1
+        repeatCount = 0
+        isFinish = false
+        invalidate()
     }
 }

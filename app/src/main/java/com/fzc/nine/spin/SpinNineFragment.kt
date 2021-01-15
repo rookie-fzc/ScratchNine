@@ -24,18 +24,33 @@ class SpinNineFragment : Fragment() {
     }
 
     private fun initNineSpin() {
-        val spinNineView = findViewById<NineGridSpinLayout>(R.id.nine_grid_layout)
+//        val spinNineView = findViewById<NineGridSpinLayout>(R.id.nine_grid_layout)
+//
+//        val dataList = ArrayList<Int>(9)
+//        (5..13).forEach {
+//            dataList.add(it)
+//        }
+//        spinNineView.setData(dataList)
+//        spinNineView.setCompleteListener {
+//            tokensAnimView?.visibility = View.VISIBLE
+//            tokensAnimView?.playAnimation()
+//        }
+//        spinNineView.setOnCenterClickListener {
+//            spinNineView.startSpinWithTarget((10..13).random())
+//        }
 
-        val dataList = ArrayList<Int>(9)
+        val nineSpinView = findViewById<NineSpinView>(R.id.view_nie_spin)
+        val dataList = ArrayList<ItemInfo>(9)
         (5..13).forEach {
-            dataList.add(it)
+            dataList.add(ItemInfo(it))
         }
-        spinNineView.setData(dataList)
-        spinNineView.setCompleteListener {
+        nineSpinView.setData(dataList)
+        nineSpinView.setOnCenterClickListener {
+            val targetIndex = (10..13).random()
+            nineSpinView.startSpinWithTargetReward(targetIndex)
+        }
+        nineSpinView.setCompleteListener {
             Log.e("TAG", "spin complete:----- ", )
-        }
-        spinNineView.setOnCenterClickListener {
-            spinNineView.startSpinWithTarget((10..13).random())
         }
     }
 }

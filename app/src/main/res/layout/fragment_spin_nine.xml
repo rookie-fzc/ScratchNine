@@ -18,15 +18,18 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.fzc.nine.spin.NineSpinView
+        android:id="@+id/view_nie_spin"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_gravity="center"
-        android:background="@color/white"
+        android:layout_margin="50dp"
+        android:background="#00ffffff"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:spin_hit_color="#a0fff000"
         app:spin_item_img="@drawable/spin_nine_item_bg"
         app:spin_radius="20dp"
         app:spin_textColor="@color/purple_200"

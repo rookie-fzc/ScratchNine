@@ -113,31 +113,4 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <com.fzc.nine.spin.NineSpinView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginHorizontal="30dp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintDimensionRatio="1:1"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:spin_backgroundColor="#55106E"
-        app:spin_center_img="@drawable/spin_nine_center"
-        app:spin_item_img="@drawable/spin_nine_item_bg"
-        app:spin_radius="10dp"
-        app:spin_textColor="#55106E"
-        app:spin_textSize="34.15sp" />
-
-    <com.fzc.nine.spin.NineGridSpinLayout
-        android:id="@+id/nine_grid_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>
